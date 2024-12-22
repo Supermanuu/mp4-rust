@@ -36,7 +36,7 @@ impl Default for Hvc1Box {
 }
 
 impl Hvc1Box {
-    pub fn new(config: &HevcConfig) -> Self {
+    pub fn new(config: &Hvc1Config) -> Self {
         Self {
             data_reference_index: 1,
             width: config.width,

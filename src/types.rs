@@ -579,6 +579,12 @@ pub struct HevcConfig {
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Default)]
+pub struct Hvc1Config {
+    pub width: u16,
+    pub height: u16,
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Default)]
 pub struct Vp9Config {
     pub width: u16,
     pub height: u16,
@@ -610,6 +616,7 @@ pub struct TtxtConfig {}
 pub enum MediaConfig {
     AvcConfig(AvcConfig),
     HevcConfig(HevcConfig),
+    Hvc1Config(Hvc1Config),
     Vp9Config(Vp9Config),
     AacConfig(AacConfig),
     TtxtConfig(TtxtConfig),

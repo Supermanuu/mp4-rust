@@ -8,7 +8,7 @@ use crate::mp4box::traf::TrafBox;
 use crate::mp4box::trak::TrakBox;
 use crate::mp4box::trun::TrunBox;
 use crate::mp4box::{
-    avc1::Avc1Box, co64::Co64Box, ctts::CttsBox, ctts::CttsEntry, hev1::Hev1Box, mp4a::Mp4aBox,
+    avc1::Avc1Box, co64::Co64Box, ctts::CttsBox, ctts::CttsEntry, hev1::Hev1Box, hvc1::Hvc1Box, mp4a::Mp4aBox,
     smhd::SmhdBox, stco::StcoBox, stsc::StscEntry, stss::StssBox, stts::SttsEntry, tx3g::Tx3gBox,
     vmhd::VmhdBox, vp09::Vp09Box,
 };
@@ -27,6 +27,7 @@ impl From<MediaConfig> for TrackConfig {
         match media_conf {
             MediaConfig::AvcConfig(avc_conf) => Self::from(avc_conf),
             MediaConfig::HevcConfig(hevc_conf) => Self::from(hevc_conf),
+            MediaConfig::Hvc1Config(hvc1_conf) => Self::from(hvc1_conf),
             MediaConfig::AacConfig(aac_conf) => Self::from(aac_conf),
             MediaConfig::TtxtConfig(ttxt_conf) => Self::from(ttxt_conf),
             MediaConfig::Vp9Config(vp9_config) => Self::from(vp9_config),
@@ -52,6 +53,17 @@ impl From<HevcConfig> for TrackConfig {
             timescale: 1000,               // XXX
             language: String::from("und"), // XXX
             media_conf: MediaConfig::HevcConfig(hevc_conf),
+        }
+    }
+}
+
+impl From<Hvc1Config> for TrackConfig {
+    fn from(hvc1_conf: Hvc1Config) -> Self {
+        Self {
+            track_type: TrackType::Video,
+            timescale: 1000,               // XXX
+            language: String::from("und"), // XXX
+            media_conf: MediaConfig::Hvc1Config(hvc1_conf),
         }
     }
 }
@@ -728,6 +740,16 @@ impl Mp4TrackWriter {
 
                 let hev1 = Hev1Box::new(hevc_config);
                 trak.mdia.minf.stbl.stsd.hev1 = Some(hev1);
+            }
+            MediaConfig::Hvc1Config(ref hvc1_config) => {
+                trak.tkhd.set_width(hvc1_config.width);
+                trak.tkhd.set_height(hvc1_config.height);
+
+                let vmhd = VmhdBox::default();
+                trak.mdia.minf.vmhd = Some(vmhd);
+
+                let hvc1 = Hvc1Box::new(hvc1_config);
+                trak.mdia.minf.stbl.stsd.hvc1 = Some(hvc1);
             }
             MediaConfig::Vp9Config(ref config) => {
                 trak.tkhd.set_width(config.width);
